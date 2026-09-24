@@ -6,7 +6,8 @@ La cartella "backend" contiene il backend (in FastAPI);
 la cartella "frontend" contiene il frontend (in React).
 
 Testare la versione attuale del backend:
-1) Entra in "backend" ed esegui "source venv/bin/activate".
-2) Entra in "backend" ed esegui "uvicorn main:app --reload --port 8000".
-3) Entra in "frontend" ed esegui "npm run dev".
-4) Visita l'indirizzo "http://localhost:5173".
+1) Esegui lo script "attivabackend.sh".
+2) Visita l'indirizzo "http://127.0.0.1:8000/docs".
+Testare anche la versione attuale del frontend:
+3) Esegui anche lo script "attivafrontend.sh".
+4) Visita l'indirizzo "http://localhost:5173"
