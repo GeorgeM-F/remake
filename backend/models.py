@@ -23,7 +23,7 @@ class AziendeRead(AziendeBase):   # Cosa va messo nel JSON di uscita (oltre a ci
     password: Optional[str] = Field(default=None)
 
 class DomandeBase(SQLModel):
-    pass
+    __tablename__ = "domande"
 class Domande(DomandeBase, table=True):
     domanda: Optional[str] = Field(default=None)
     pilastro_es: Optional[str] = Field(default=None)
@@ -35,6 +35,8 @@ class Domande(DomandeBase, table=True):
     criterio_metriche: Optional[int] = Field(default=None)
     info: Optional[str] = Field(default=None)
     id_domanda: Optional[int] = Field(default=None, primary_key=True)
+class DomandeRead(DomandeBase):
+    pass
 
 class ProvePreassessmentBase(SQLModel):
     __tablename__ = "prove_preassessment"
@@ -44,14 +46,19 @@ class ProvePreassessment(ProvePreassessmentBase, table=True):
     data_prova: Optional[str] = Field(default=None)
 class ProvePreassessmentCreate(ProvePreassessmentBase):
     id_azienda: int
+class ProvePreassessmentRead(ProvePreassessmentBase):
+    id_prova: Optional[int] = Field(default=None, primary_key=True)
+    id_azienda: Optional[int] = Field(default=None, foreign_key="aziende.id_azienda")
+    data_prova: Optional[str] = Field(default=None)
 
 class QuestionariBase(SQLModel):
-    pass
+    __tablename__ = "questionari"
 class Questionari(QuestionariBase, table=True):
     id_questionario: Optional[int] = Field(default=None, primary_key=True)
     titolo: Optional[str] = Field(default=None)
 
 class RispostePreassessmentBase(SQLModel):
+    __tablename__ = "risposte_preassessment"
     risposta: Optional[str] = Field(default=None)
     descrizione: Optional[str] = Field(default=None)
     autovalutazione: Optional[int] = Field(default=None)
@@ -62,51 +69,20 @@ class RispostePreassessment(RispostePreassessmentBase, table=True):
     id_azienda: Optional[int] = Field(default=None, foreign_key="aziende.id_azienda")
     id_prova: Optional[int] = Field(default=None, foreign_key="prove_preassessment.id_prova")
     id_domanda: Optional[int] = Field(default=None, foreign_key="domande.id_domanda")
+class RispostePreassessmentCreate(RispostePreassessmentBase):
+    pass
+class RispostePreassessmentRead(RispostePreassessmentBase):
+    pass
 
 class SuggerimentiBase(SQLModel):
-    pass
+    __tablename__ = "suggerimenti"
 class Suggerimenti(SuggerimentiBase, table=True):
     id_suggerimento: Optional[int] = Field(default=None, primary_key=True)
     tema: Optional[str] = Field(default=None)
     punteggio: Optional[str] = Field(default=None)
     testo: Optional[str] = Field(default=None)
-
-
-
-# DA QUI IN POI E' POSSIBILE SPOSTARE IL TUTTO SU "SCHEMAS.PY"
-# 3. Schema per la creazione (POST, payload in ingresso, senza ID)
-
-class DomandeCreate(DomandeBase):
-    pass
-
-class ProvePreassessmentCreate(ProvePreassessmentBase):
-    pass
-
-class QuestionariCreate(QuestionariBase):
-    pass
-
-class RispostePreassessmentCreate(RispostePreassessmentBase):
-    pass
-
-class SuggerimentiCreate(SuggerimentiBase):
-    pass
-
-# Schema per la lettura (GET, payload in uscita, garantisce la presenza dell'ID)
-
-class DomandeRead(DomandeBase):
-    id_domanda: int
-
-class ProvePreassessmentRead(ProvePreassessmentBase):
-    id_prova: int
-
-class QuestionariRead(QuestionariBase):
-    id_questionario: int
-
-class RispostePreassessmentRead(RispostePreassessmentBase):
-    id_risposta: int
-
 class SuggerimentiRead(SuggerimentiBase):
-    id_suggerimento: int
+    pass
 
 
 

@@ -5,7 +5,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from sqlmodel import Session, select, SQLModel, and_, not_, or_
 from database import engine, get_session
 from datetime import datetime, timezone
-from models import Aziende, AziendeCreate, AziendeRead, ProvePreassessment, ProvePreassessmentCreate
+from models import Aziende, AziendeCreate, AziendeRead, ProvePreassessment, ProvePreassessmentCreate, ProvePreassessmentRead
 app = FastAPI()   # Obbligatorio
 app.add_middleware(   # Permette le chiamate dal frontend React
     CORSMiddleware,
@@ -87,13 +87,20 @@ def newtrial(request: Request, data: ProvePreassessmentCreate, session: Session 
     session.add(new_data)   # ...nella sessione
     session.commit()   # ...dalla sessione al database (solo le ultime modifiche, e senza usare una query SQL)
     session.refresh(new_data)
-    # EVENTUALI VALORI DA RESTITUIRE NELLA RISPOSTA
     return {
         "message": "Nuova prova registrata!",
         "data nuova prova": new_data.data_prova,
     }
 
 # === FUNZIONE DI ELENCO PROVE EFFETTUATE (GET) === #
+@app.post("/triallist", status_code=status.HTTP_200_OK)
+def triallist(request: Request, data: ProvePreassessmentRead, session: Session = Depends(get_session)):
+    statement = select(ProvePreassessment).where(ProvePreassessment.id_azienda == int(request.session.get("utente_attuale")))
+    lista = session.exec(statement).all()   # elementi della query
+    return {
+        "message": "Query effettuata con successo",
+        "list": lista
+    }
 
 # === FUNZIONE DI SALVATAGGIO RISPOSTE E PROGRESSI (POST) === #
 
