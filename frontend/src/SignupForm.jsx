@@ -13,22 +13,18 @@ export default function SignupForm() {
     indirizzo_email: '',
     password: '',
   });
-
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
     setError(null);
-
     try {
       const response = await fetch('http://127.0.0.1:8000/signup', {   // L'INDIRIZZO DEVE CORRISPONDERE ALLA RIGA "@app.post" DELLA CORRISPONDENTE AZIONE NEL FILE MAIN.PY NEL BACKEND!
         method: 'POST',
@@ -37,14 +33,10 @@ export default function SignupForm() {
         },
         body: JSON.stringify(formData),
       });
-
-      const data = await response.json();
-
+      const data = await response.json();   // definisce "data" come il json di risposta
       if (!response.ok) {
-        // FastAPI restituisce gli errori dentro 'detail'
-        throw new Error(data.detail || 'Errore durante la registrazione');
+        throw new Error(data.detail);   // nota: FastAPI restituisce gli errori dentro 'detail'
       }
-
       setMessage(data.message);
       setFormData({
         ragione_sociale: '',
@@ -58,7 +50,6 @@ export default function SignupForm() {
         indirizzo_email: '',
         password: ''
       }); // Reset del form
-
     } catch (err) {
       setError(err.message);
     }
