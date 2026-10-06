@@ -50,8 +50,8 @@ def signup(request: Request, data: AziendeCreate, session: Session = Depends(get
         "message": "Registrazione effettuata con successo!"
     }
 
-# === FUNZIONE DI ACCESSO (GET) === #
-@app.get("/login", status_code=status.HTTP_200_OK)
+# === FUNZIONE DI ACCESSO (POST) === #
+@app.post("/login", status_code=status.HTTP_200_OK)
 def login(request: Request, data: AziendeLogin, session: Session = Depends(get_session)):
     # VERIFICA SE L'UTENTE ESISTE
     hashed_password = f"hashed_{data.password}"
@@ -63,16 +63,18 @@ def login(request: Request, data: AziendeLogin, session: Session = Depends(get_s
     request.session["azienda_attuale"] = utente.id_azienda
     # EVENTUALI VALORI DA RESTITUIRE NELLA RISPOSTA
     return {
-        "message": "Login effettuato con successo!"
+        "message": "Login effettuato con successo!",
+        "id_azienda": request.session["azienda_attuale"]
     }
 
 # === FUNZIONE DI ELENCO DATI UTENTE (GET) === #
 @app.get("/personaldata", status_code=status.HTTP_200_OK)
-def personaldata(request: Request, data: AziendeRead, session: Session = Depends(get_session)):
+def personaldata(request: Request, session: Session = Depends(get_session)):
     statement = select(Aziende).where(Aziende.id_azienda == int(request.session.get("azienda_attuale")))
     lista = session.exec(statement).all()   # elementi della query
     return {
         "message": "Query effettuata con successo",
+        "id_azienda": request.session["azienda_attuale"],
         "dati azienda": lista
     }
 
@@ -100,11 +102,12 @@ def newtrial(request: Request, data: ProvePreassessmentCreate, session: Session 
 
 # === FUNZIONE DI ELENCO PROVE EFFETTUATE (GET) === #
 @app.get("/triallist", status_code=status.HTTP_200_OK)
-def triallist(request: Request, data: ProvePreassessmentRead, session: Session = Depends(get_session)):
+def triallist(request: Request, session: Session = Depends(get_session)):
     statement = select(ProvePreassessment).where(ProvePreassessment.id_azienda == int(request.session.get("azienda_attuale")))
     lista = session.exec(statement).all()   # elementi della query
     return {
         "message": "Query effettuata con successo",
+        "id_azienda": request.session["azienda_attuale"],
         "lista prove": lista
     }
 
@@ -113,18 +116,20 @@ def triallist(request: Request, data: ProvePreassessmentRead, session: Session =
 def loadt(i: int, request: Request, session: Session = Depends(get_session)):   # "i" viene ridichiarato tra gli argomenti della funzione
     request.session["prova_attuale"] = i
     return {
-        "message": "Caricamento effettuato con successo",
-        "id prova": i
+        "message": "Caricamento effettuato con successo"
     }
 
-# === FUNZIONE DI CARICAMENTO PROSSIMA DOMANDA (GET) === #
+# === FUNZIONE DI CARICAMENTO DOMANDA (GET) === #
 @app.get("/loadq/{i}", status_code=status.HTTP_200_OK)   # "i" dipende dalla pagina attuale;
-def loadq(i: int, request: Request, data: DomandeRead, session: Session = Depends(get_session)):   # "i" viene ridichiarato tra gli argomenti della funzione
+def loadq(i: int, request: Request, session: Session = Depends(get_session)):   # "i" viene ridichiarato tra gli argomenti della funzione
     statement = select(Domande).where(Domande.id_domanda == i)
     dom = session.exec(statement).first()
     request.session["domanda_attuale"] = dom.id_domanda
     return {
         "message": "Query effettuata con successo",
+        "id_azienda": request.session["azienda_attuale"],
+        "id_prova": request.session["prova_attuale"],
+        "id_domanda": request.session["domanda_attuale"],
         "domanda": dom
     }
 
@@ -150,17 +155,20 @@ def saver(i: int, request: Request, data: RispostePreassessmentCreate, session: 
 
 # === FUNZIONE DI VISUALIZZAZIONE RISPOSTE (GET) === #
 @app.get("/loadr/{i}", status_code=status.HTTP_200_OK)
-def loadr(i: int, request: Request, data: RispostePreassessmentRead, session: Session = Depends(get_session)):
+def loadr(i: int, request: Request, session: Session = Depends(get_session)):
     statement = select(RispostePreassessment).where(RispostePreassessment.id_domanda == i)
     risposte = session.exec(statement).all()   # elementi della query
     return {
         "message": "Query effettuata con successo",
+        "id_azienda": request.session["azienda_attuale"],
+        "id_prova": request.session["prova_attuale"],
+        "id_domanda": request.session["domanda_attuale"],
         "risposte": risposte
     }
 
-# === FUNZIONE DI CALCOLO E VISUALIZZAZIONE RISULTATI (GET) === #
+# === FUNZIONE DI CALCOLO E VISUALIZZAZIONE RISULTATI (GET) (INCOMPLETA) === #
 @app.get("/result", status_code=status.HTTP_200_OK)
-def result(request: Request, data: RispostePreassessmentRead, session: Session = Depends(get_session)):
+def result(request: Request, session: Session = Depends(get_session)):
     # NUMERO DI RISPOSTE "NO"
     statementa = select(func.count()).select_from(RispostePreassessment).where(and_(RispostePreassessment.id_azienda == int(request.session.get("azienda_attuale")), RispostePreassessment.id_prova == int(request.session.get("prova_attuale")), RispostePreassessment.risposta == "no"))
     numsi = session.exec(statementa).one()
@@ -202,4 +210,4 @@ def result(request: Request, data: RispostePreassessmentRead, session: Session =
         "numero no": numno
     }
 
-# === FUNZIONE DI SCARICAMENTO REPORT (GET) === #
+# === FUNZIONE DI SCARICAMENTO REPORT (GET) (INCOMPLETA) === #
