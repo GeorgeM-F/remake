@@ -21,7 +21,7 @@ export default function SaverForm() {
     setMessage(null);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/saver', {   // L'INDIRIZZO DEVE CORRISPONDERE ALLA RIGA "@app.post" DELLA CORRISPONDENTE AZIONE NEL FILE MAIN.PY NEL BACKEND!
+      const response = await fetch('http://localhost:8000/saver', {   // L'INDIRIZZO DEVE CORRISPONDERE ALLA RIGA "@app.post" DELLA CORRISPONDENTE AZIONE NEL FILE MAIN.PY NEL BACKEND!
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

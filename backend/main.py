@@ -10,12 +10,20 @@ app = FastAPI()   # Obbligatorio
 app.add_middleware(   # Permette le chiamate dal frontend React
     CORSMiddleware,
     allow_origins=["http://localhost:5173",
-                   "http://127.0.0.1:8000"],
+                   "http://127.0.0.1:8000",
+                   "http://localhost:3000",
+                   "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(SessionMiddleware, secret_key="chiave-temporanea-per-sviluppo-locale", max_age=7200)   # Inizializzazione sessione (max_age=durata in secondi)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="chiave-temporanea-per-sviluppo-locale",
+    max_age=7200,
+    https_only=False,
+    same_site="lax"
+)   # Inizializzazione sessione (max_age=durata in secondi)
 
 
 
@@ -70,11 +78,17 @@ def login(request: Request, data: AziendeLogin, session: Session = Depends(get_s
 # === FUNZIONE DI ELENCO DATI UTENTE (GET) === #
 @app.get("/personaldata", status_code=status.HTTP_200_OK)
 def personaldata(request: Request, session: Session = Depends(get_session)):
-    statement = select(Aziende).where(Aziende.id_azienda == int(request.session.get("azienda_attuale")))
+    # RECUPERO DATI SESSIONE
+    id_azienda = request.session.get("azienda_attuale")
+    # ERRORE SE NESSUNO E' AUTENTICATO
+    if id_azienda is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Nessun utente autenticato")
+
+    statement = select(Aziende).where(Aziende.id_azienda == int(id_azienda))
     lista = session.exec(statement).all()   # elementi della query
     return {
         "message": "Query effettuata con successo",
-        "id_azienda": request.session["azienda_attuale"],
+        "id_azienda": id_azienda,
         "dati azienda": lista
     }
 
@@ -89,7 +103,7 @@ def newtrial(request: Request, data: ProvePreassessmentCreate, session: Session 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nessuna azienda autenticata",)
     # DEFINIZIONE DATI DA INSERIRE
     new_data = ProvePreassessment(   # elenco dati da inserire
-        id_azienda=request.session.get("azienda_attuale"),
+        id_azienda=utente,
         data_prova=datetime.now(timezone.utc)
     )
     # INSERIMENTO DATI...
@@ -103,11 +117,14 @@ def newtrial(request: Request, data: ProvePreassessmentCreate, session: Session 
 # === FUNZIONE DI ELENCO PROVE EFFETTUATE (GET) === #
 @app.get("/triallist", status_code=status.HTTP_200_OK)
 def triallist(request: Request, session: Session = Depends(get_session)):
-    statement = select(ProvePreassessment).where(ProvePreassessment.id_azienda == int(request.session.get("azienda_attuale")))
+    # RECUPERO DATI SESSIONE
+    id_azienda = request.session.get("azienda_attuale")
+
+    statement = select(ProvePreassessment).where(ProvePreassessment.id_azienda == int(id_azienda))
     lista = session.exec(statement).all()   # elementi della query
     return {
         "message": "Query effettuata con successo",
-        "id_azienda": request.session["azienda_attuale"],
+        "id_azienda": id_azienda,
         "lista prove": lista
     }
 

@@ -187,7 +187,6 @@ export default function SignupForm({ onBack }) {   // Definire tra parentesi gra
           Registrati
         </button>
       </form>
-      <hr></hr>
       <button onClick={onBack}>Torna indietro</button>
     </div>
   );

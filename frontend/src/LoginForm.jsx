@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function LoginForm() {
+export default function LoginForm({ onBack }) {
   const [formData, setFormData] = useState({
     nome: '',
     password: '',
@@ -18,11 +18,12 @@ export default function LoginForm() {
     setMessage(null);
     setError(null);
     try {
-      const response = await fetch('http://127.0.0.1:8000/login', {   // L'INDIRIZZO DEVE CORRISPONDERE ALLA RIGA "@app.post" DELLA CORRISPONDENTE AZIONE NEL FILE MAIN.PY NEL BACKEND!
-        method: 'GET',
+      const response = await fetch('http://localhost:8000/login', {   // L'INDIRIZZO DEVE CORRISPONDERE ALLA RIGA "@app.post" DELLA CORRISPONDENTE AZIONE NEL FILE MAIN.PY NEL BACKEND!
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
       const data = await response.json();
@@ -64,6 +65,8 @@ export default function LoginForm() {
           Accedi
         </button>
       </form>
+      <hr></hr>
+      <button onClick={onBack}>Torna indietro</button>
     </div>
   );
 }

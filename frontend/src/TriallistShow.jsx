@@ -3,7 +3,7 @@ import TriallistShow from './TriallistShow';
 import Newtrial from './Newtrial';
 import SaverForm from './SaverForm';
 
-export default function PersonaldataShow({ onBack }) {
+export default function PersonaldataShow() {
   const [jsonData, setJsonData] = useState('');
   useEffect(() => {
     fetch('http://localhost:8000/personaldata', {credentials: 'include'})   // credentials include è necessario per dati di sessione
@@ -35,13 +35,11 @@ export default function PersonaldataShow({ onBack }) {
       {jsonData || 'Caricamento in corso...'}
       </p>
       <hr></hr>
-      <button onClick={() => cambiapagina("TriallistShow")}>Elenco prove effettuate</button>
+      <button onClick={() => cambiapagina("TriallistShow")}>Domanda</button>
       <hr></hr>
-      <button onClick={() => cambiapagina("Newtrial")}>Nuova prova</button>
+      <button onClick={() => cambiapagina("Newtrial")}>Domanda</button>
       <hr></hr>
       <button onClick={() => cambiapagina("SaverForm")}>Domanda</button>
-      <hr></hr>
-      <button onClick={onBack}>Torna indietro</button>
     </div>
 
   );
